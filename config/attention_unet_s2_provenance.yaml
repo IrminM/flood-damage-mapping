@@ -1,0 +1,121 @@
+# Sentinel-2 Data Preparation Provenance Configuration
+# Derived from scientific audit of training artifacts and Sen1Floods11 dataset documentation.
+# Reference: docs/attention_unet_s2_provenance_audit.md
+
+model_metadata:
+  model_id: "Attention_UNet_S1_S2"
+  checkpoint_path: "data/models/best_flood_attention_unet.keras"
+  architecture: "Attention U-Net (Keras / TensorFlow)"
+  model_size_mb: 152
+  input_shape: [256, 256, 15]
+  output_type: "flood_water_probability"
+  default_threshold: 0.40
+  validation_status: "not_validated_on_Trishuli"
+  operational_readiness: "BLOCKED_PENDING_SCIENTIFIC_VALIDATION"
+
+provenance_matrix:
+  product_level:
+    status: "PROVEN FROM TRAINING ARTIFACTS & PUBLIC DATASET DOCS"
+    value: "L1C"
+    description: "Sentinel-2 Level-1C Top-of-Atmosphere (TOA) reflectance"
+    evidence_source: "media_1791371815721.py lines 366-375, Bonafilia et al. (2020) Table 1"
+    confidence: "100%"
+
+  b10_source:
+    status: "PROVEN FROM TRAINING ARTIFACTS & PUBLIC DATASET DOCS"
+    value: "L1C_native_resampled"
+    description: "Native Sentinel-2 Level-1C Cirrus Band 10 (1373 nm, native 60 m resampled to 10 m)"
+    evidence_source: "media_1791371815721.py lines 366-375 (band 11 in 13-band S2 TIFF), Sen1Floods11 table"
+    confidence: "100%"
+
+  target_resolution_m:
+    status: "PROVEN FROM TRAINING ARTIFACTS & PUBLIC DATASET DOCS"
+    value: 10.0
+    description: "Ground sampling distance 10.0 metres"
+    evidence_source: "media_1791371815721.py lines 315 & 665-667, Sen1Floods11 dataset specification"
+    confidence: "100%"
+
+  resampling_method:
+    status: "PROVEN FROM PUBLIC DATASET DOCS & TRAINING ARTIFACTS"
+    value: "nearest"
+    description: "Nearest Neighbor resampling executed upstream in Google Earth Engine during dataset export"
+    evidence_source: "media_1791371815721.py performs no runtime resampling; GEE export default for COPERNICUS/S2"
+    confidence: "95%"
+
+  co_registration_method:
+    status: "PROVEN FROM TRAINING ARTIFACTS & PUBLIC DATASET DOCS"
+    value: "s1_grid_aligned"
+    description: "Shared pixel grid (EPSG:4326 in Sen1Floods11 chips, metric UTM in project pipeline)"
+    evidence_source: "media_1791371815721.py lines 856-862 (direct spatial concatenation along channel axis)"
+    confidence: "100%"
+
+  temporal_pairing_rule:
+    status: "PROVEN FROM TRAINING ARTIFACTS & PUBLIC DATASET DOCS"
+    value: "fixed_sample_id_pairing"
+    description: "Fixed 1:1 ID pairing matching Sen1Floods11 HandLabeled chips (|delta_t| <= 1 day)"
+    evidence_source: "media_1791371815721.py lines 541-601 (matched strictly by {id}_S1Hand and {id}_S2Hand)"
+    confidence: "100%"
+
+channel_contract:
+  total_channels: 15
+  channels:
+    0: "VV"
+    1: "VH"
+    2: "B1"
+    3: "B2"
+    4: "B3"
+    5: "B4"
+    6: "B5"
+    7: "B6"
+    8: "B7"
+    9: "B8"
+    10: "B8A"
+    11: "B9"
+    12: "B10"
+    13: "B11"
+    14: "B12"
+
+preprocessing:
+  s1:
+    dtype: "float32"
+    apply_db_conversion: false
+    scaling: false
+    finite_median_replacement: true
+    fallback_value_if_all_nonfinite: 0.0
+  s2:
+    dtype: "float32"
+    divide_factor: 10000.0
+    clip_min: 0.0
+    clip_max: 1.0
+
+training_environment:
+  source_dataset: "robertomarinoformica/sen1floods11-dataset"
+  total_events: 11
+  events:
+    - "Bolivia"
+    - "Ghana"
+    - "India (lowland plain)"
+    - "Mekong (delta/plains)"
+    - "Nigeria"
+    - "Pakistan (Indus valley)"
+    - "Paraguay"
+    - "Somalia"
+    - "Spain"
+    - "Sri Lanka"
+    - "USA"
+  himalayan_samples: 0
+  nepal_samples: 0
+  trishuli_samples: 0
+  cloud_masking_applied: false
+  cropping_strategy: "top-left 256x256 (:256, :256, :) from 512x512 chips"
+
+operational_guards:
+  terrain_gating_required: true
+  max_slope_deg: 10.0
+  max_hand_m: 30.0
+  structural_damage_equivalency_permitted: false
+  direct_operational_deployment: "BLOCKED_PENDING_SCIENTIFIC_VALIDATION"
+  minimum_prerequisites_for_deployment:
+    - "Verification of optical scene cloud cover over valley floor"
+    - "Sub-pixel co-registration check between S1 and S2 grids"
+    - "Strict enforcement of physical DEM terrain gates in fusion layer"

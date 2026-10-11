@@ -1,0 +1,55 @@
+# Secrets / local config
+.env
+.env.*
+!.env.example
+config/local*.yaml
+
+# Data — never commit satellite scenes, DEMs, OSM extracts, training data or the 1900 GB pool
+data/*
+!data/README.md
+*.tif
+*.tiff
+*.TIF
+*.jp2
+*.SAFE/
+*.zip
+*.nc
+*.h5
+*.npy
+*.npz
+*.gpkg
+*.parquet
+
+# Model artifacts (share weights via drive/release, not git)
+*.pth
+*.pt
+*.ckpt
+*.onnx
+*.keras
+models/
+checkpoints/
+
+# Analysis outputs
+runs/
+outputs/
+
+# Python / tooling caches
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+.venv/
+venv/
+build/
+dist/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
+tmp/

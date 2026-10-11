@@ -1,0 +1,21 @@
+# Core runtime (no deep-learning framework here — see requirements-ml.txt)
+numpy>=1.26
+scipy>=1.11
+scikit-image>=0.22
+rasterio>=1.3.9
+pyproj>=3.6
+shapely>=2.0
+geopandas>=0.14
+networkx>=3.2
+pydantic>=2.5
+PyYAML>=6.0
+requests>=2.31
+jinja2>=3.1
+matplotlib>=3.7      # quicklook PNGs
+
+# API / dashboard backend
+fastapi>=0.110
+uvicorn>=0.27
+
+# Data acquisition scripts (scripts/fetch_s1_openeo.py)
+openeo>=0.30

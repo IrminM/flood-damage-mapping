@@ -1,0 +1,16 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "trishuli_corridor_dev",
+        "note": "Approximate development AOI around the Trishuli / Bhote Koshi corridor (Betrawati to Syaphrubesi). Verify on a map before downloading data. The system works for any AOI; this file is only an example."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[85.17, 27.95], [85.36, 27.95], [85.36, 28.18], [85.17, 28.18], [85.17, 27.95]]]
+      }
+    }
+  ]
+}

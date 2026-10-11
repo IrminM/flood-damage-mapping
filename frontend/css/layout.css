@@ -1,0 +1,510 @@
+/* FloodIntel Geospatial Command Console — Layout Engine */
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  min-height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background: var(--navy-950);
+}
+
+/* 1. Global Command Header */
+.command-header {
+  height: 38px;
+  min-height: 38px;
+  background: var(--navy-900);
+  border-bottom: 1px solid var(--navy-700);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  color: var(--ink-inverse);
+  z-index: 100;
+}
+
+.brand-block {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--blue-600);
+  color: var(--white);
+  font-weight: 800;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.brand-title {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.brand-logo-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.brand-subtitle {
+  font-size: 11.5px;
+  font-weight: 400;
+  color: var(--slate-400);
+}
+
+.header-status-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(11, 21, 38, 0.6);
+  border: 1px solid var(--navy-700);
+  padding: 2px 7px;
+  border-radius: 4px;
+  color: var(--slate-300);
+  font-size: 11px;
+}
+
+.sensor-chip {
+  color: var(--slate-400);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.validation-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(220, 38, 38, 0.15);
+  border: 1px solid rgba(220, 38, 38, 0.4);
+  color: #fca5a5;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 99px;
+  letter-spacing: 0.02em;
+}
+.validation-pill .pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ef4444;
+}
+
+.system-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--slate-300);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+.system-chip .status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+}
+
+/* 2. Operational Control Strip (Single Horizontal Row) */
+.operational-strip {
+  height: 38px;
+  min-height: 38px;
+  background: var(--navy-800);
+  border-bottom: 1px solid var(--navy-700);
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  z-index: 90;
+}
+
+.config-form-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
+.field-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.field-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--slate-400);
+  white-space: nowrap;
+}
+
+.input-aoi-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.input-text, .input-date, .input-time, select.input-aoi {
+  height: 26px;
+  padding: 0 8px;
+  background: var(--navy-900);
+  border: 1px solid var(--navy-600);
+  border-radius: 4px;
+  color: var(--white);
+  font-size: 12px;
+  font-family: inherit;
+  transition: border-color 0.15s ease;
+}
+.input-text:focus, .input-date:focus, .input-time:focus, select.input-aoi:focus {
+  border-color: var(--blue-400);
+  outline: none;
+}
+.input-aoi {
+  width: 280px;
+  min-width: 220px;
+  max-width: 320px;
+}
+.input-date {
+  width: 125px;
+}
+.input-time {
+  width: 105px;
+}
+
+.preset-group {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.btn-preset-pill {
+  background: var(--navy-700);
+  border: 1px solid var(--navy-600);
+  color: var(--slate-300);
+  font-size: 10.5px;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.btn-preset-pill:hover {
+  background: var(--navy-600);
+  color: var(--white);
+  border-color: var(--slate-400);
+}
+
+.btn-run-action {
+  height: 26px;
+  padding: 0 12px;
+  background: var(--blue-600);
+  border: 1px solid var(--blue-500);
+  color: var(--white);
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.btn-run-action:hover {
+  background: var(--blue-500);
+  border-color: var(--blue-400);
+}
+.btn-run-action:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.inline-err {
+  color: #ef4444;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 3. Main Console Workspace (2 Columns) */
+.console-workspace {
+  flex: 1 1 auto;
+  display: flex;
+  height: calc(100vh - 38px - 38px - 24px);
+  min-height: 0;
+  overflow: hidden;
+  background: var(--slate-900);
+}
+
+/* Left: Intelligence Sidebar */
+.intel-sidebar {
+  width: 460px;
+  min-width: 350px;
+  max-width: 500px;
+  height: 100%;
+  background: var(--bg-card);
+  border-right: 1px solid var(--border-medium);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 50;
+  box-shadow: var(--shadow-md);
+}
+
+/* Tab Navigation Header */
+.sidebar-tab-header {
+  background: var(--slate-100);
+  border-bottom: 1px solid var(--border-medium);
+  display: flex;
+  padding: 4px 2px 0;
+  gap: 2px;
+  min-height: 32px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sidebar-tab-header::-webkit-scrollbar {
+  height: 3px;
+}
+.sidebar-tab-header::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-tab-header::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 3px;
+}
+.sidebar-tab-header::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.6);
+}
+
+.tab-btn {
+  flex: 1 1 auto;
+  min-width: max-content;
+  padding: 5px 4px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-bottom: 0;
+  border-radius: 5px 5px 0 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+.tab-btn:hover {
+  color: var(--ink-primary);
+  background: rgba(255, 255, 255, 0.6);
+}
+.tab-btn.active {
+  color: var(--blue-600);
+  background: var(--bg-card);
+  border-color: var(--border-medium);
+  border-bottom: 1px solid var(--bg-card);
+  margin-bottom: -1px;
+}
+.tab-badge {
+  display: inline-block;
+  padding: 1px 4px;
+  border-radius: 99px;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.2;
+  background: var(--slate-200);
+  color: var(--slate-700);
+}
+.tab-badge.badge-audit {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+.tab-btn.active .tab-badge {
+  background: var(--blue-50);
+  color: var(--blue-600);
+}
+.tab-btn.active .tab-badge.badge-audit {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.sidebar-tab-content {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 10px;
+  background: var(--bg-card);
+}
+
+.sidebar-status-banner .banner-alert {
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1.35;
+}
+
+.tab-pane {
+  display: none;
+}
+.tab-pane.active {
+  display: block;
+}
+
+/* Right: Map Canvas */
+.map-viewport {
+  flex: 1 1 auto;
+  position: relative;
+  height: 100%;
+  min-width: 0;
+  background: #0f1c32;
+  overflow: hidden;
+}
+
+.leaflet-gis-canvas {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  z-index: 10;
+}
+
+/* Map Top Toolbar Overlay */
+.map-top-bar {
+  position: absolute;
+  top: 8px;
+  left: 54px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 400;
+}
+
+.map-control-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  pointer-events: auto;
+}
+
+/* Combined Floating Layer & Legend Box */
+.map-floating-legend {
+  position: absolute;
+  bottom: 26px;
+  right: 8px;
+  width: 228px;
+  max-height: calc(100% - 55px);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--border-medium);
+  border-radius: 6px;
+  box-shadow: var(--shadow-float);
+  overflow: hidden;
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s ease;
+}
+
+/* Bottom Feature Inspector Bar */
+.map-inspector-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 24px;
+  background: rgba(11, 21, 38, 0.92);
+  backdrop-filter: blur(6px);
+  border-top: 1px solid var(--navy-700);
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  font-size: 11px;
+  color: var(--slate-300);
+  z-index: 400;
+}
+
+/* 4. Global Scientific Attribution Bar */
+.scientific-drawer-bar {
+  height: 22px;
+  min-height: 22px;
+  background: var(--navy-950);
+  border-top: 1px solid var(--navy-800);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  font-size: 10.5px;
+  color: var(--slate-400);
+  z-index: 80;
+}
+
+.scientific-drawer-bar a {
+  color: var(--slate-300);
+}
+
+/* Mobile & Small Screen Responsive Handling */
+@media (max-width: 900px) {
+  .app-container {
+    height: auto;
+    overflow-y: auto;
+  }
+  .console-workspace {
+    flex-direction: column;
+    height: auto;
+  }
+  .intel-sidebar {
+    width: 100%;
+    max-width: 100%;
+    height: 480px;
+    border-right: 0;
+    border-bottom: 2px solid var(--border-medium);
+  }
+  .map-viewport {
+    height: 520px;
+  }
+}

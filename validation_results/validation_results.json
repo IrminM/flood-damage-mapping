@@ -1,0 +1,96 @@
+{
+  "created": "2026-10-11T14:16:43+00:00",
+  "label": "Agreement with unvalidated third-party reference maps - NOT verified accuracy",
+  "grid": {
+    "crs": "EPSG:32645",
+    "res_m": 10.0,
+    "W": 3552,
+    "H": 2905,
+    "x0": 322000.0,
+    "y1": 3137340.0
+  },
+  "inputs": {
+    "iwm": {
+      "path": "C:\\Users\\user\\Downloads\\floodintel-track-b\\data\\validation_only\\iwm\\IWM_2026_08_26_Nepal_Flood_VAP02.shp",
+      "sha256": "36d2199ba4d2e5448b0d573879cebb709f2b0e3fd80c1ebc0810680a6298a416"
+    },
+    "tasa": {
+      "path": "C:\\Users\\user\\Downloads\\floodintel-track-b\\data\\validation_only\\tasa\\Affected_0816_0828.shp",
+      "sha256": "97bb40af647469f346bdc895a4b35aca33943cb457885e1b9520a8b8293ccbce"
+    },
+    "nepal": {
+      "path": "C:\\Users\\user\\Downloads\\floodintel-track-b\\data\\validation_only\\boundaries\\geoBoundaries-NPL-ADM0.geojson",
+      "sha256": "fc0f32802e64cb5e9c95a11af4ad2d3589df8406476707c974c4f8bb9ee07004"
+    },
+    "hot": {
+      "path": "C:\\Users\\user\\Downloads\\floodintel-track-b\\data\\validation_only\\hot_flood_npl\\hot_flood_npl_flood_extent_2026-08-27.geojson",
+      "sha256": "e939c0c1502d7cfbf0e4f5bf99e1ceeca0db0cdef3026cbf74b395ced74e96b2"
+    }
+  },
+  "notes": [
+    "No permanent-water mask given: the normal river channel is counted as flood-affected in every layer.",
+    "No FloodIntel valid-observation mask given: cloudy / no-data pixels are treated as observed (results may be pessimistic).",
+    "SELF-TEST: prediction = IWM itself. Expected IoU vs IWM = 1.0. These are NOT FloodIntel results."
+  ],
+  "reference_stats": {
+    "IWM_total_km2": 19.2645,
+    "IWM_in_Nepal_km2": 14.8449,
+    "TASA_total_km2": 10.2706,
+    "TASA_in_Nepal_km2": 6.7119,
+    "CORE_IWM_and_TASA_in_Nepal_km2": 5.8193,
+    "evaluation_zone_km2": 81.7092,
+    "TASA_vs_IWM_in_Nepal": {
+      "TP_km2": 5.8193,
+      "FP_km2": 0.8926,
+      "FN_km2": 9.0256,
+      "IoU": 0.36977283558379664,
+      "precision": 0.8670123213993057,
+      "recall": 0.392006682429656,
+      "F1": 0.5399038818377495
+    },
+    "HOT_vs_IWM_in_Nepal_same_window": {
+      "TP_km2": 4.861,
+      "FP_km2": 0.5544,
+      "FN_km2": 9.9839,
+      "IoU": 0.31566369899930513,
+      "precision": 0.8976252908372419,
+      "recall": 0.3274525257832656,
+      "F1": 0.4798546911941086
+    }
+  },
+  "self_test": true,
+  "A_vs_IWM_full_metrics": {
+    "TP_km2": 14.8449,
+    "FP_km2": 0.0,
+    "FN_km2": 0.0,
+    "IoU": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "F1": 1.0,
+    "precision_tolerant": 1.0,
+    "recall_tolerant": 1.0
+  },
+  "B_recall_vs_IWM_and_TASA_core": {
+    "ref_km2": 5.8193,
+    "detected_km2": 5.8193,
+    "recall": 1.0
+  },
+  "C_recall_vs_TASA_only": {
+    "ref_km2": 6.7119,
+    "detected_km2": 5.8193,
+    "recall": 0.8670123213993057
+  },
+  "D_sensitivity_vs_HOT": {
+    "TP_km2": 4.861,
+    "FP_km2": 0.4508,
+    "FN_km2": 0.5544,
+    "IoU": 0.8286454604343527,
+    "precision": 0.9151323468504085,
+    "recall": 0.8976252908372419,
+    "F1": 0.9062942799612203,
+    "precision_tolerant": 0.9511088519899094,
+    "recall_tolerant": 0.9594305129814973
+  },
+  "prediction_in_zone_km2": 14.8449,
+  "prediction_in_Nepal_outside_zone_km2": 0.0
+}

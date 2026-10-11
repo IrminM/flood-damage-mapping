@@ -1,0 +1,16 @@
+{
+  "sensor": "S1",
+  "platform": "sentinel-1a",
+  "product_type": "GRD",
+  "acquisition_time": "2026-08-20T00:15:30+00:00",
+  "bands": ["VV", "VH"],
+  "units": "linear",
+  "processing": "CDSE openEO SENTINEL1_GRD sar_backscatter(coefficient=sigma0-ellipsoid), resampled 10 m to EPSG:32645",
+  "source_type": "sentinel-1",
+  "relative_orbit": 85,
+  "orbit_direction": "ascending",
+  "product_ids": ["S1A_IW_GRDH_1SDV_20260820T001530_..._EXAMPLE"],
+  "cloud_cover_pct": null,
+  "data_mode": "REAL",
+  "extra": {}
+}

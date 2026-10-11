@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "floodmap"
+version = "0.1.0"
+description = "Modular prototype: flood/debris mapping, infrastructure impact and cut-off settlement analysis from Sentinel data (Multimodal AI Hackathon 2026, Track B)"
+requires-python = ">=3.10"
+readme = "README.md"
+
+[tool.setuptools.packages.find]
+include = ["floodmap*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+markers = [
+    "network: test needs internet access (skipped by default unless FLOODMAP_RUN_NETWORK_TESTS=1)",
+]

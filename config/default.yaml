@@ -1,0 +1,237 @@
+# floodmap default configuration.
+# Override with a second YAML (FLOODMAP_CONFIG=path) or environment variables
+# of the form FLOODMAP__<SECTION>__<KEY>=value (see .env.example).
+# Every threshold the pipeline uses must live here, not in code.
+
+paths:
+  data_dir: ./data
+  runs_dir: ./data/runs
+
+logging:
+  level: INFO
+
+crs:
+  # "auto_utm" = pick the WGS84/UTM zone containing the AOI centroid,
+  # so areas, lengths and buffers are computed in metres.
+  analysis: auto_utm
+  # Web outputs (GeoJSON for the dashboard) are always EPSG:4326.
+  output: EPSG:4326
+
+satellite:
+  s1:
+    # Challenge brief: compare images from the same orbit track.
+    require_same_relative_orbit: true
+    require_same_orbit_direction: true
+    # Same-track revisit is 12 days per satellite (6 days with two satellites).
+    max_pair_gap_days: 36
+    # Warn (not fail) when either image is further than this from the event.
+    warn_days_from_event: 14
+    expected_bands: [VV, VH]
+
+grid:
+  # Analysis pixel size in metres (Sentinel-1 GRD-HD native ground pixel is 10 m).
+  resolution_m: 10
+  # Extra margin around the AOI bbox so filters/terrain have context at the edges.
+  margin_m: 200
+
+preprocessing:
+  s1:
+    # Speckle filter, applied in linear power. Set enabled: false if input is already filtered.
+    speckle_filter:
+      enabled: true
+      method: lee
+      window: 5          # odd window size in pixels
+      enl: 4.4           # equivalent number of looks of S1 IW GRD-HD (~4.4)
+    # Floor used before log10 so zeros/negatives don't produce -inf (linear power).
+    linear_floor: 1.0e-5
+    # Valid dB range; values outside are treated as nodata (border noise, artefacts).
+    valid_db_range: [-40.0, 15.0]
+    # Minimum share of valid AOI pixels required in each image.
+    min_valid_fraction: 0.5
+
+terrain:
+  enabled: true
+  # Terrain analysis runs on the DEM at this resolution, then masks are resampled to the grid.
+  dem_resolution_m: 30
+  # Terrain is analysed on the analysis extent + this margin, so drainage paths that
+  # leave the AOI are not cut short (DEM should be downloaded with at least this buffer).
+  margin_m: 2000
+  # Nominal SAR geometry used for the shadow/layover approximation when the scene
+  # sidecar has no incidence angle (extra.incidence_angle_deg).
+  nominal_incidence_deg: 39.0
+  # Nominal S1 heading (deg clockwise from north). Right-looking SAR => look azimuth = heading + 90.
+  nominal_heading_deg:
+    ascending: 348.0
+    descending: 192.0
+  # Height Above Nearest Drainage: cells draining at least this area are "drainage".
+  hand_stream_threshold_km2: 1.0
+  # Small offset used while filling flats/pits so every cell drains (metres).
+  fill_epsilon_m: 0.0001
+
+change_detection:
+  method: s1_logratio_v1
+  s1_logratio_v1:
+    # Dark-water threshold on after-event VV (dB).
+    water_threshold:
+      mode: auto_otsu            # auto_otsu | fixed
+      fixed_db: -18.0            # used when mode=fixed or when Otsu cannot run
+      otsu_bounds_db: [-24.0, -14.0]
+      otsu_min_samples: 1000
+      # If Otsu falls outside otsu_bounds_db the histogram is not land-vs-open-water:
+      # "fixed" (default) uses fixed_db; "clamp" uses the nearest bound (most permissive; not recommended).
+      otsu_out_of_bounds: fixed
+      # Accept Otsu only if its two classes are clearly separated (Ashman's D of the two halves).
+      # Calibration: a unimodal histogram split by Otsu gives D~2.65; land + >=10 % open water gives D~6.
+      min_ashman_d: 3.5
+    # New water: VV must drop by at least this much (after - before <= -value).
+    min_vv_drop_db: 3.0
+    # Non-water surface change: |log-ratio| in VV or VH at least the change threshold.
+    # change_abs_db is the fixed threshold (mode: fixed) and the minimum (floor) in noise_adaptive mode.
+    change_abs_db: 3.0
+    change_threshold:
+      # noise_adaptive: per polarisation, max(change_abs_db, k_sigma * robust sigma of the log-ratio
+      #                 over observable non-water pixels). Ties the false-alarm level to the
+      #                 measured noise of THIS scene pair (real Trishuli run: sigma ~1.45 dB).
+      # fixed:          change_abs_db for both polarisations (previous behaviour).
+      mode: noise_adaptive
+      k_sigma: 3.0
+      min_samples: 10000      # fewer non-water samples -> use change_abs_db
+    # Terrain context of the non-water change class (labels only; does not reclassify).
+    change_context:
+      enabled: true
+      valley_max_hand_m: 25.0    # valley bottom = HAND <= this ...
+      valley_max_slope_deg: 15.0 # ... and slope <= this; everything else observable = hillside
+    # Terrain gates for WATER classes (new water, water in both dates).
+    water_max_slope_deg: 15.0
+    water_max_hand_m: 25.0
+    # Terrain gate for the non-water change class (only very steep slopes removed).
+    change_max_slope_deg: 35.0
+    # Remove connected blobs smaller than this (m²), per class.
+    min_area_m2: 2000
+    # Morphological opening radius (pixels) applied before blob removal; 0 = off.
+    opening_radius_px: 1
+
+data_rules:
+  # OSM must be a snapshot taken before the event (post-event edits are prohibited inputs).
+  osm_snapshot_must_precede_event: true
+  # Inputs whose path, name or declared source matches any of these are rejected.
+  # These products are allowed ONLY for validation, never as pipeline inputs.
+  prohibited_source_patterns:
+    - "copernicus ems"
+    - "copernicus_ems"
+    - "emsr"
+    - "unosat"
+    - "unitar"
+    - "damage[_ -]?assessment"
+    - "grading"
+    - "delineation"
+  # Declared source types the pipeline accepts as inputs.
+  allowed_source_types:
+    - sentinel-1
+    - sentinel-2
+    - copernicus-dem
+    - osm-pre-event
+    - training-kurosiwo
+    - training-sen1floods11
+    - synthetic-test   # dev_mocks only; results get stamped data_mode=SYNTHETIC_TEST
+
+osm:
+  ohsome_url: https://api.ohsome.org/v1
+  # Latest pre-event snapshot available per the challenge brief (event: 2026-08-26).
+  default_snapshot_date: "2026-07-27"
+  # Road network is fetched for AOI + this buffer so routes leaving the AOI
+  # (to towns/hospitals outside it) are not mistaken for dead ends.
+  network_buffer_km: 20
+  # Buildings are only needed inside the AOI (+ a small margin).
+  buildings_buffer_km: 1
+  layers: [buildings, roads, bridges, places, health]
+  # ohsome filter expressions per layer (https://docs.ohsome.org/ohsome-api/v1/filter.html).
+  # `track` is kept: in Himalayan hill districts tracks are often the only vehicle access.
+  filters:
+    buildings: "building=* and building!=no and geometry:polygon"
+    roads: >-
+      highway in (motorway, motorway_link, trunk, trunk_link, primary, primary_link,
+      secondary, secondary_link, tertiary, tertiary_link, unclassified, residential,
+      living_street, service, track, road) and geometry:line
+    bridges: "((bridge=* and bridge!=no and highway=*) or man_made=bridge)"
+    places: "place in (city, town, village, hamlet, isolated_dwelling)"
+    health: "amenity in (hospital, clinic, doctors) or healthcare in (hospital, clinic, centre, doctor)"
+  # Expected geometry types per layer (loader validation).
+  geometry_types:
+    buildings: [Polygon, MultiPolygon]
+    roads: [LineString, MultiLineString]
+    bridges: [LineString, MultiLineString, Polygon, MultiPolygon]
+    places: [Point, Polygon, MultiPolygon]
+    health: [Point, Polygon, MultiPolygon]
+
+ai:
+  # s1_mini_unet_v1 | teammate_unet | none
+  model: s1_mini_unet_v1
+  s1_mini_unet_v1:
+    channels: [VV, VH]
+    db_range: [-35.0, 0.0]        # Clamped dB backscatter range
+    normalization: min_max        # Linear scaling to [0, 1]: (clamp(dB, -35, 0) - (-35)) / 35
+    tile_size: 256                # 256x256 px (~2.56 km) chosen for fast inference & clean edge fit
+    overlap: 32                   # 32 px overlap margin between adjacent tiles
+    blend_mode: ramp              # 2D ramp blending over overlap margins to avoid tile seam artifacts
+    threshold: 0.50               # Initial/default threshold (uncalibrated until validation is run)
+    water_max_slope_deg: 15.0     # Terrain gate: reject flood water candidate on steep slopes
+    water_max_hand_m: 25.0        # Terrain gate: reject flood water candidate high above drainage
+    min_area_m2: 2000.0           # Filter out isolated single-pixel noise clusters (< 20 px)
+  attention_unet_s1_s2:
+    threshold: 0.40
+    tile_size: 256
+    checkpoint_filename: best_flood_attention_unet.keras
+    # Sentinel-2 preparation fields (UNRESOLVED; adapter refuses execution until resolved)
+    product_level: UNRESOLVED
+    b10_source: UNRESOLVED
+    target_resolution_m: null
+    resampling_method: UNRESOLVED
+    co_registration_method: UNRESOLVED
+    temporal_pairing_rule: UNRESOLVED
+  fusion:
+    mode: union                   # Union of Change Detection flood water and AI flood water
+    preserve_permanent_water: true  # Permanent water (both dates) from change detection kept as class 2
+    preserve_debris: true           # Class 3 non-water change from change detection kept as class 3 (AI detects water only)
+  models:
+    baseline_unet:
+      weights: ./data/models/baseline_unet.pth
+    teammate_unet:
+      # Preserved slot for teammate's Model A if training code/normalization specs emerge.
+      weights: ./data/models/teammate/best_flood_unet_best.pth
+
+impact:
+  building_buffer_m: 0.0              # Direct polygon intersection (no artificial dilation)
+  min_affected_building_area_m2: 1.0  # Minimum footprint intersection area to flag building
+  road_buffer_m: 5.0                  # 5m centerline buffer (half road width on 10m grid)
+  min_affected_road_length_m: 5.0     # Minimum intersecting road segment length to flag
+  bridge_buffer_m: 15.0               # 15m tolerance for bridge centerline/approach road
+  waterway_buffer_m: 50.0             # Buffer around OSM river channels for Class 3 context
+  include_flood_classes: [1, 3]       # Evaluated classes: 1 (Flood water), 3 (Surface change/debris)
+
+connectivity:
+  disruption_mode: remove             # remove | penalty
+  penalty_multiplier: 1000.0         # weight multiplier when disruption_mode is penalty
+  max_snapping_distance_m: 1000.0    # maximum distance (m) to snap settlement/destination to road
+  settlement_place_types: [village, hamlet, isolated_dwelling, settlement]
+  destination_place_types: [city, town]
+  include_health_destinations: true
+  speeds_kmh:
+    motorway: 80.0
+    trunk: 60.0
+    primary: 50.0
+    secondary: 40.0
+    tertiary: 30.0
+    unclassified: 25.0
+    residential: 20.0
+    track: 10.0
+    default: 25.0
+
+downstream:
+  max_length_m: 50000.0                 # maximum path length in metres (50 km)
+  max_steps: 2000                       # maximum number of DEM cells to trace
+  sink_handling: fill                   # fill | stop (fill uses depression-filled routing)
+  min_elevation_drop_m: 0.0             # minimum drop per step
+  settlement_proximity_radius_m: 1000.0 # buffer (m) to detect nearby settlements along path
+  settlement_place_types: [village, hamlet, isolated_dwelling, settlement, town, city]
+

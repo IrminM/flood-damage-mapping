@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>FLOODINTEL — Satellite-Based Flood Impact &amp; Connectivity Intelligence</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="assets/logo-symbol.png">
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/print.css" media="print">
+</head>
+<body>
+  <div class="app-container">
+
+    <!-- 1. Global Command Header -->
+    <header class="command-header noprint">
+      <div class="brand-block">
+        <span class="brand-badge">SATELLITE OPS</span>
+        <div class="brand-title">
+          <img src="assets/logo-symbol.png" alt="FloodIntel Logo" class="brand-logo-icon">
+          <span>FLOODINTEL</span>
+          <span class="brand-subtitle" id="brand-subtitle">— Trishuli Basin, Nepal</span>
+        </div>
+      </div>
+      <div class="header-status-group">
+        <div class="meta-chip" id="wx-chip" title="Meteorological context at event coordinates">
+          <span>☁</span> <span id="wx">Loading weather…</span>
+          <button id="wxb" class="btn-preset-pill" style="padding:1px 5px;margin-left:4px" title="Refresh weather">↻</button>
+        </div>
+        <div class="meta-chip sensor-chip" title="Active radar and optical sensor baselines">
+          <span id="sensor-chip-text">🛰 S1/S2 · DEM-30</span>
+        </div>
+        <div class="validation-pill" id="val-pill" title="Model uncalibrated on Himalayan terrain (trained on Sen1Floods11 lowland plains)">
+          <span class="pill-dot"></span>
+          <span id="val-pill-text">AI Status: not_validated_on_Trishuli</span>
+        </div>
+        <div class="system-chip">
+          <span class="status-dot"></span>
+          <span id="sys-status">System Ready</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- 2. Compact Operational Control Strip (Single Row) -->
+    <section class="operational-strip noprint" aria-labelledby="controls-label">
+      <span id="controls-label" class="sr-only" style="display:none">Assessment Parameters</span>
+      <div class="config-form-row">
+        <!-- Disaster Case Study Selector -->
+        <div class="field-group aoi-field-group">
+          <label for="case-select" class="field-label">Disaster Case</label>
+          <div class="input-aoi-wrap">
+            <select id="case-select" class="input-text input-aoi" style="width:280px;min-width:220px;cursor:pointer" aria-label="Disaster Case Study">
+              <option value="trishuli_basin" selected>Trishuli Basin, Nepal (2026-08-26) [Verified]</option>
+              <option value="emilia_romagna">Emilia-Romagna, Italy (2023-05-17) [Pending Ingestion]</option>
+              <option value="valencia_dana">Valencia DANA, Spain (2024-10-29) [Pending Ingestion]</option>
+            </select>
+            <input type="hidden" id="area" value="trishuli_basin">
+          </div>
+        </div>
+
+        <!-- Date & Time -->
+        <div class="field-group">
+          <label for="date" class="field-label">Event Date</label>
+          <input id="date" type="date" class="input-date" value="2026-08-26">
+        </div>
+
+        <div class="field-group">
+          <label for="time" class="field-label">Time</label>
+          <input id="time" type="time" class="input-time" value="12:00">
+        </div>
+
+        <!-- Primary Action -->
+        <button class="btn-run-action" id="run">
+          <span>▶</span> Run Flood Assessment
+        </button>
+
+        <div id="err" class="noprint inline-err" role="alert"></div>
+      </div>
+    </section>
+
+    <!-- 3. Console Workspace (2 Columns) -->
+    <main class="console-workspace">
+      
+      <!-- Left: Multi-Tab Disaster Intelligence Sidebar -->
+      <aside class="intel-sidebar" aria-label="Disaster Intelligence Panel">
+        <!-- Sidebar Navigation Tabs -->
+        <nav class="sidebar-tab-header" role="tablist">
+          <button class="tab-btn active" id="tab-btn-kpis" role="tab" aria-selected="true" data-tab="pane-kpis">
+            <span>Hazard KPIs</span>
+          </button>
+          <button class="tab-btn" id="tab-btn-settl" role="tab" aria-selected="false" data-tab="pane-settl">
+            <span>Settlements</span>
+            <span class="tab-badge" id="tab-settl-count">344</span>
+          </button>
+          <button class="tab-btn" id="tab-btn-report" role="tab" aria-selected="false" data-tab="pane-report">
+            <span>Situation Report</span>
+          </button>
+          <button class="tab-btn" id="tab-btn-val" role="tab" aria-selected="false" data-tab="pane-val">
+            <span>Validation</span>
+            <span class="tab-badge badge-audit" style="background:#fee2e2;color:#b91c1c;">Audit</span>
+          </button>
+          <button class="tab-btn" id="tab-btn-review" role="tab" aria-selected="false" data-tab="pane-review">
+            <span>AI Review</span>
+          </button>
+        </nav>
+
+        <!-- Tab Content Panes -->
+        <div class="sidebar-tab-content">
+          <div id="banner" class="sidebar-status-banner noprint"></div>
+          
+          <!-- Pane 1: Hazard & Infrastructure KPIs -->
+          <div class="tab-pane active" id="pane-kpis" role="tabpanel">
+            <div id="metrics">
+              <div class="kpis-unrun-state">
+                <div class="unrun-icon">📊</div>
+                <div class="unrun-title">Assessment Pending</div>
+                <div class="unrun-desc">Click <b>▶ Run Flood Assessment</b> above to compute multi-sensor flood evidence, infrastructure exposure, and community connectivity.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pane 2: Settlement Access & Logistics -->
+          <div class="tab-pane" id="pane-settl" role="tabpanel">
+            <div class="kpi-section-title" style="margin-bottom:6px">
+              <span>Settlement Network Connectivity</span>
+            </div>
+            <div class="settl-search-container">
+              <input id="settl-search" class="settl-search-input" type="search" placeholder="Search 344 settlements..." autocomplete="off">
+            </div>
+            <div class="settl-filter-buttons" id="settl-filters">
+              <button class="btn-filter active" data-filter="all">All Settlements</button>
+              <button class="btn-filter danger" data-filter="cut">Cut off (49)</button>
+              <button class="btn-filter success" data-filter="ok">Connected (295)</button>
+            </div>
+            <div id="settl">
+              <span class="muted">No assessment run yet.</span>
+            </div>
+          </div>
+
+          <!-- Pane 3: Situation Report (SitRep) -->
+          <div class="tab-pane" id="pane-report" role="tabpanel">
+            <div class="sitrep-container">
+              <div class="sitrep-head noprint">
+                <span class="sitrep-title">Disaster Impact Situation Report</span>
+                <button class="btn-print-action" id="print" disabled>
+                  <span>🖨</span> Print / Save PDF
+                </button>
+              </div>
+              <div id="rep" class="muted">No report yet. Generated after an assessment completes.</div>
+            </div>
+          </div>
+
+          <!-- Pane 4: Validation & Evidence Audit -->
+          <div class="tab-pane" id="pane-val" role="tabpanel">
+            <div class="kpi-section-title">
+              <span>Third-Party Validation &amp; Evidence Audit</span>
+              <span class="tag-badge cut">not_validated_on_Trishuli</span>
+            </div>
+
+            <!-- Scientific Notice Banner -->
+            <div style="background:#fff1f2;border:1px solid #fecdd3;border-radius:6px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:#9f1239;line-height:1.4">
+              <b>Scientific Limitation Notice:</b><br>
+              Metrics below measure <b>provisional spatial agreement with unvalidated third-party reference maps</b>, NOT verified physical ground-truth accuracy. Model status is formally <code>not_validated_on_Trishuli</code>.
+            </div>
+
+            <!-- Environmental Limitation Card: Cloud Cover & Missing Mask -->
+            <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:#92400e;line-height:1.4">
+              <b>Dense Cloud Cover (65.6%) &amp; Missing Valid Mask:</b><br>
+              Sentinel-2 L1C scene has <b>65.6% cloud cover</b> over the valley floor. Because no valid-observation mask was available, cloudy pixels are treated as observed dry ground. This creates <b>14.78 km² of false negatives</b>, artificially depressing recall (0.43% vs IWM) to a pessimistic lower bound.
+            </div>
+
+            <!-- Reference Disagreement Card -->
+            <div style="background:var(--slate-50);border:1px solid var(--border-subtle);border-radius:6px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:var(--slate-700);line-height:1.4">
+              <b>High Inter-Reference Divergence:</b><br>
+              • <b>TASA vs IWM:</b> IoU <b>36.98%</b> (5.82 km² overlap; 9.03 km² IWM-only, 0.89 km² TASA-only)<br>
+              • <b>HOT vs IWM:</b> IoU <b>31.57%</b> (mapped active floodway overlaps debris/gravel beds)<br>
+              • <b>EMSR927:</b> Landslide/debris-flow only (3.46 km² AOI), 0 flood polygons.
+            </div>
+
+            <!-- Quantitative Comparison Blocks -->
+            <div class="kpi-section" style="margin-bottom:8px">
+              <div class="kpi-section-title" style="font-size:9.5px">Block A: Full Evaluation vs IWM (14.84 km² in Nepal)</div>
+              <div class="kpi-grid">
+                <div class="kpi-card">
+                  <div class="kpi-card-label">Strict Precision</div>
+                  <div class="kpi-card-value" style="color:#0284c7">64.95%</div>
+                  <div class="kpi-card-sub">TP 0.063 km² / FP 0.034 km²</div>
+                </div>
+                <div class="kpi-card">
+                  <div class="kpi-card-label">Strict Recall</div>
+                  <div class="kpi-card-value" style="color:#e11d48">0.43%</div>
+                  <div class="kpi-card-sub">Pessimistic (65.6% clouds)</div>
+                </div>
+                <div class="kpi-card">
+                  <div class="kpi-card-label">Strict IoU</div>
+                  <div class="kpi-card-value" style="color:#475569">0.42%</div>
+                  <div class="kpi-card-sub">F1: 0.85%</div>
+                </div>
+                <div class="kpi-card">
+                  <div class="kpi-card-label">20m Edge-Tolerant</div>
+                  <div class="kpi-card-value" style="color:#2563eb">65.7% / 3.1%</div>
+                  <div class="kpi-card-sub">Tolerant Prec / Recall</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="kpi-section" style="margin-bottom:8px">
+              <div class="kpi-section-title" style="font-size:9.5px">Blocks B, C &amp; D: Consensus, TASA &amp; HOT Sensitivity</div>
+              <div class="kpi-grid three-col">
+                <div class="kpi-card">
+                  <div class="kpi-card-label">Core Recall (IWM∩TASA)</div>
+                  <div class="kpi-card-value">0.22%</div>
+                  <div class="kpi-card-sub">Ref: 5.82 km²</div>
+                </div>
+                <div class="kpi-card">
+                  <div class="kpi-card-label">TASA-Only Recall</div>
+                  <div class="kpi-card-value">0.22%</div>
+                  <div class="kpi-card-sub">Ref: 6.71 km²</div>
+                </div>
+                <div class="kpi-card">
+                  <div class="kpi-card-label">HOT Sensitivity</div>
+                  <div class="kpi-card-value" style="color:#059669">97.46%</div>
+                  <div class="kpi-card-sub">Precision (98.0% tol)</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Raster Engine & Data Rules Safeguards -->
+            <div style="background:var(--slate-50);border:1px solid var(--border-subtle);border-radius:6px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:var(--slate-600);line-height:1.4">
+              <b>Engine Verification &amp; Data Rules Guard:</b><br>
+              • <b>Grid.burn() Patch:</b> Fixed XOR inter-polygon cancellation; validated with synthetic overlap (651 px) and self-test (IoU 1.0).<br>
+              • <b>TASA Check:</b> Confirmed 0-pixel divergence (single multi-part record).<br>
+              • <b>Data Isolation:</b> Reference datasets are strictly confined to <code>data/validation_only/</code> and never used in training or inference.
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display:grid;gap:6px;margin-top:10px">
+              <button class="btn-map-tool" id="btn-open-toolkit-agreement" style="justify-content:center;padding:7px;font-weight:600">
+                🗺 Open Multi-Source Agreement Map
+              </button>
+            </div>
+          </div>
+
+          <!-- Pane 5: Spatial Evidence Review Context -->
+          <div class="tab-pane" id="pane-review" role="tabpanel">
+            <div class="kpi-section-title">
+              <span>Multi-Panel AI &amp; SAR Spatial Verification</span>
+            </div>
+            <p class="kpi-section-subtitle">
+              Inspect verified high-resolution evidence maps showing exploratory Attention U-Net model probability, raw binary masks, terrain gating masks, and Sentinel-1 SAR change detections.
+            </p>
+            <div style="display:grid;gap:8px;margin-top:12px">
+              <button class="btn-map-tool" id="btn-open-review-overview" style="justify-content:center;padding:8px">
+                🔍 Open Full-Scene 6-Panel Evidence Review
+              </button>
+              <button class="btn-map-tool" id="btn-open-review-overlap" style="justify-content:center;padding:8px">
+                ⚠ Open Multi-Sensor Disagreement Map
+              </button>
+            </div>
+            <div style="margin-top:16px;padding:10px;background:var(--slate-50);border:1px solid var(--border-subtle);border-radius:6px;font-size:11.5px;color:var(--ink-secondary)">
+              <b>Scientific Evaluation Note:</b><br>
+              In mountainous Himalayan topography, steep terrain creates severe radar shadow/layover and optical shadows. Comparing dual-sensor concurrence against independent reference data proves essential to reject unphysical false positives.
+            </div>
+          </div>
+
+        </div>
+      </aside>
+
+      <!-- Right: Primary Interactive GIS Map Canvas -->
+      <section class="map-viewport" aria-label="Interactive GIS Flood Map">
+        
+        <!-- Top Map Floating Bar -->
+        <div class="map-top-bar noprint">
+          <div class="map-control-group">
+            <div class="map-segmented-control" role="group" aria-label="Basemap style">
+              <button id="bm-carto" class="btn-segment active" aria-pressed="true">Cartographic</button>
+              <button id="bm-sat" class="btn-segment" aria-pressed="false">Satellite</button>
+            </div>
+            <button class="btn-map-tool" id="btn-zoom-fit" title="Zoom map to full study AOI extent">
+              <span>⤢</span> Zoom to AOI
+            </button>
+          </div>
+
+          <div class="map-control-group">
+            <button class="btn-map-tool" id="btn-toggle-review" title="Open multi-panel evidence verification viewer">
+              <span>🔍</span> AI Review Maps
+            </button>
+          </div>
+        </div>
+
+        <!-- Leaflet GIS Map Container -->
+        <div id="gis-map" class="leaflet-gis-canvas" role="region" aria-label="Interactive Leaflet GIS Map"></div>
+        <svg id="map" viewBox="0 0 800 520" role="img" aria-label="Flood assessment fallback map" style="display:none"></svg>
+        
+        <!-- Overlay for unrun / loading state -->
+        <div class="map-overlay" id="ov">
+          <div style="background:rgba(255,255,255,0.95);padding:18px 24px;border-radius:8px;box-shadow:var(--shadow-md);border:1px solid var(--border-medium);max-width:380px">
+            <div style="font-size:14px;font-weight:700;color:var(--navy-900);margin-bottom:6px">Operational Assessment Required</div>
+            <div style="font-size:12px;color:var(--ink-secondary);line-height:1.4">Click <b>Run Flood Assessment</b> above to synthesize Sentinel-1 radar change, Attention U-Net water candidates, and road connectivity.</div>
+          </div>
+        </div>
+
+        <!-- Floating Combined Layer Switcher & Legend Overlay -->
+        <div class="map-floating-legend noprint" id="map-layer-legend">
+          <div class="legend-head">
+            <span>Layers &amp; Symbology</span>
+            <button type="button" class="btn-legend-toggle" id="btn-collapse-legend" title="Collapse legend">▲</button>
+          </div>
+          <div class="legend-body" id="layers">
+            <!-- Populated dynamically with checkboxes + colored swatches by map.js -->
+          </div>
+        </div>
+
+        <!-- Bottom Feature Inspector Bar -->
+        <div class="map-inspector-bar noprint" id="pick">
+          <span>Select any map feature (settlement, road, bridge, or flood polygon) to inspect details.</span>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- 4. Global Scientific Attribution & Safeguard Bar -->
+    <footer class="scientific-drawer-bar noprint">
+      <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+        <span>Attribution: Copernicus Sentinel-1/2 (2026) · WorldDEM-30 © DLR/Airbus/ESA · OpenStreetMap (2026-07-27 pre-event snapshot) · Open-Meteo</span>
+      </div>
+      <div style="white-space:nowrap;margin-left:12px">
+        <span style="color:#f87171;font-weight:600">⚠ Proximity to hazard buffer ≠ confirmed collapse</span>
+      </div>
+    </footer>
+
+    <!-- 5. Multi-Panel AI Review Modal / Lightbox -->
+    <div class="modal-backdrop noprint" id="review-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-dialog review-modal-dialog">
+        <div class="modal-header">
+          <div class="modal-title" id="modal-title">Multi-Panel AI &amp; SAR Spatial Evidence Review</div>
+          <div class="modal-controls">
+            <label for="modal-panel-select" style="font-size:11.5px;color:var(--slate-300);font-weight:600">View:</label>
+            <select id="modal-panel-select" class="form-select-sm" style="background:#0f172a;color:#f8fafc;border:1px solid #334155;border-radius:4px;padding:3px 8px;font-size:12px;font-weight:600;cursor:pointer">
+              <optgroup label="Multi-Panel Composites">
+                <option value="overview">6-Panel Full Scene Overview</option>
+                <option value="zoom1">6-Panel Zoom 1: Central Valley</option>
+                <option value="zoom2">6-Panel Zoom 2: North Gorge</option>
+              </optgroup>
+              <optgroup label="Individual Full-Resolution Panels">
+                <option value="panel_a">Panel A: Sentinel-2 True Color RGB Context</option>
+                <option value="panel_b">Panel B: Copernicus DEM 30m Slope Context</option>
+                <option value="panel_c">Panel C: Raw Attention U-Net Flood Probability</option>
+                <option value="panel_d">Panel D: Terrain-Gated Candidate Water Mask</option>
+                <option value="panel_e">Panel E: Stage 2 Sentinel-1 SAR Change Evidence</option>
+                <option value="panel_f">Panel F: Multi-Evidence Overlap &amp; Disagreement</option>
+              </optgroup>
+              <optgroup label="Third-Party Validation Toolkit">
+                <option value="agreement">Validation Multi-Source Agreement Map (IWM + TASA + HOT)</option>
+              </optgroup>
+            </select>
+            <button class="btn-segment active" id="btn-modal-overview" title="Full 6-panel composite view">6-Panel Overview</button>
+            <button class="btn-segment" id="btn-modal-overlap" title="Multi-sensor concurrence &amp; disagreement">Evidence Disagreement</button>
+            <button class="btn-segment" id="btn-modal-val" title="Third-party reference agreement map">Validation Map</button>
+            <button class="btn-segment" id="btn-modal-zoom" title="Toggle 100% full-resolution / fit-to-window view">🔍 100% Zoom</button>
+            <button class="btn-close-modal" id="btn-close-modal">✕ Close</button>
+          </div>
+        </div>
+        <div class="modal-body">
+          <img id="review-img" class="modal-img" src="" alt="AI Evidence Review Map" loading="lazy">
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Scripts: Classic vanilla order (no build step, works offline & local) -->
+  <script src="vendor/leaflet/leaflet.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/data/mockAssessment.js"></script>
+  <script src="js/api/assessmentApi.js"></script>
+  <script src="js/api/weatherApi.js"></script>
+  <script src="js/ui/map.js"></script>
+  <script src="js/ui/findings.js"></script>
+  <script src="js/ui/report.js"></script>
+  <script src="js/ui/weatherPanel.js"></script>
+  <script src="js/ui/controls.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

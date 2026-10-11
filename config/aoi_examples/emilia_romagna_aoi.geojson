@@ -1,0 +1,28 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "emilia_romagna_lamone_corridor",
+        "event": "May 2023 Emilia-Romagna Flooding",
+        "country": "Italy",
+        "event_date": "2023-05-17",
+        "reference": "Copernicus EMS EMSR659",
+        "description": "Lamone, Montone, and Ronco river corridors covering Faenza, Forli, and Ravenna."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [11.70, 44.15],
+            [12.35, 44.15],
+            [12.35, 44.55],
+            [11.70, 44.55],
+            [11.70, 44.15]
+          ]
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+# AI segmentation (training + inference). Install on top of requirements.txt.
+# For GPU, install the torch build matching your CUDA version from https://pytorch.org first.
+-r requirements.txt
+torch>=2.2
+tensorflow>=2.16
+keras>=3.0

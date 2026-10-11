@@ -1,0 +1,312 @@
+/* FloodIntel — Formal Disaster Response Situation Report (SitRep) Print Stylesheet */
+
+@media print {
+  /* Hide all interactive, console, map, and chrome components */
+  .command-header,
+  .operational-strip,
+  .sidebar-tab-header,
+  .map-viewport,
+  .map-floating-legend,
+  .map-top-bar,
+  .map-inspector-bar,
+  .scientific-drawer-bar,
+  .modal-backdrop,
+  .btn-print-action,
+  .settl-search-container,
+  .settl-filter-buttons,
+  .noprint,
+  #banner,
+  #pick,
+  #map-layer-legend,
+  #ov {
+    display: none !important;
+  }
+
+  /* Force exact background colors, borders, and tag badges */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Professional A4 emergency publication page dimensions and margins */
+  @page {
+    size: A4 portrait;
+    margin: 12mm 14mm 12mm 14mm;
+  }
+
+  html, body,
+  .app-container,
+  .console-workspace,
+  .intel-sidebar,
+  .sidebar-tab-content,
+  #pane-report,
+  #tab-report,
+  .sitrep-container,
+  #rep {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans", "Noto Sans Devanagari", Arial, sans-serif !important;
+    font-size: 8.8pt !important;
+    line-height: 1.4 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    border: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    float: none !important;
+    display: block !important;
+    position: static !important;
+  }
+
+  /* Isolate situation report tab pane: hide all non-report tabs, display only #pane-report */
+  .tab-pane {
+    display: none !important;
+  }
+  #pane-report,
+  #tab-report {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .sitrep-container {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Formal Situation Report Document Header */
+  .sitrep-print-header {
+    border-bottom: none !important;
+    padding: 0 0 2pt 0 !important;
+    margin: 0 0 6pt 0 !important;
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .sitrep-print-header-brand {
+    display: block !important;
+    width: 100% !important;
+    margin-bottom: 3pt !important;
+  }
+
+  .sitrep-print-title {
+    font-size: 14pt !important;
+    font-weight: 800 !important;
+    color: #0b1526 !important;
+    letter-spacing: -0.015em !important;
+    margin: 0 0 1.5pt 0 !important;
+    line-height: 1.2 !important;
+    text-transform: uppercase !important;
+  }
+
+  .sitrep-print-subtitle {
+    font-size: 8.4pt !important;
+    color: #475569 !important;
+    font-weight: 500 !important;
+    margin: 0 !important;
+    line-height: 1.3 !important;
+  }
+
+  /* Full-width metadata bar */
+  .sitrep-meta-bar {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 2pt 8pt !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    border-top: 1pt solid #cbd5e1 !important;
+    border-bottom: 1.5pt solid #0b1526 !important;
+    padding: 3pt 0 !important;
+    margin: 4pt 0 6pt 0 !important;
+    font-size: 8pt !important;
+    color: #334155 !important;
+    line-height: 1.3 !important;
+  }
+
+  .sitrep-meta-item {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 2.5pt !important;
+    white-space: normal !important;
+  }
+
+  .sitrep-meta-item b {
+    color: #0b1526 !important;
+    font-weight: 700 !important;
+  }
+
+  /* Section Structure & Content Blocks */
+  .sitrep-block {
+    margin-bottom: 6pt !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .sitrep-block h4 {
+    font-size: 9.3pt !important;
+    font-weight: 700 !important;
+    color: #0b1526 !important;
+    border-bottom: 1pt solid #cbd5e1 !important;
+    padding-bottom: 1.5pt !important;
+    margin-top: 0 !important;
+    margin-bottom: 3pt !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.02em !important;
+    break-after: avoid !important;
+    page-break-after: avoid !important;
+  }
+
+  .sitrep-block p {
+    margin: 1.5pt 0 3pt 0 !important;
+    font-size: 8.4pt !important;
+    line-height: 1.35 !important;
+    color: #1e293b !important;
+    break-after: avoid !important;
+    page-break-after: avoid !important;
+  }
+
+  .sitrep-block ul {
+    margin: 1.5pt 0 3pt 0 !important;
+    padding-left: 13pt !important;
+  }
+
+  .sitrep-block li {
+    margin-bottom: 1.5pt !important;
+    font-size: 8.3pt !important;
+    line-height: 1.35 !important;
+    color: #1e293b !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .sitrep-block li b {
+    color: #0b1526 !important;
+  }
+
+  /* Scientific Caveat Notes */
+  .sitrep-caveat-text {
+    font-size: 7.8pt !important;
+    color: #64748b !important;
+    margin-bottom: 2pt !important;
+    line-height: 1.3 !important;
+    break-after: avoid !important;
+    page-break-after: avoid !important;
+  }
+
+  /* Cut-Off Communities Callout Container */
+  .sitrep-cut-box {
+    background: #f8fafc !important;
+    border: 1pt solid #cbd5e1 !important;
+    border-left: 3pt solid #dc2626 !important;
+    padding: 3.5pt 6pt !important;
+    border-radius: 2pt !important;
+    font-size: 8pt !important;
+    line-height: 1.35 !important;
+    color: #0f172a !important;
+    margin-top: 2pt !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Scientific Disclaimers and Limitations */
+  .sitrep-disclaimers-list {
+    font-size: 7.8pt !important;
+    color: #475569 !important;
+    line-height: 1.32 !important;
+  }
+
+  .sitrep-disclaimers-list li {
+    font-size: 7.8pt !important;
+    color: #475569 !important;
+    margin-bottom: 1.5pt !important;
+  }
+
+  /* Status Badges & Inline Code Blocks */
+  .tag-badge {
+    display: inline-block;
+    padding: 0.5pt 3.5pt !important;
+    border-radius: 2pt !important;
+    font-size: 7.5pt !important;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace !important;
+    line-height: 1.2 !important;
+    vertical-align: middle;
+  }
+
+  .tag-badge.cut {
+    border: 1pt solid #b91c1c !important;
+    background: #fef2f2 !important;
+    color: #b91c1c !important;
+    font-weight: 700 !important;
+  }
+
+  .tag-badge.ok {
+    border: 1pt solid #15803d !important;
+    background: #f0fdf4 !important;
+    color: #15803d !important;
+    font-weight: 700 !important;
+  }
+
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace !important;
+    font-size: 7.8pt !important;
+    background: #f1f5f9 !important;
+    padding: 0.5pt 2pt !important;
+    border: 0.5pt solid #cbd5e1 !important;
+    border-radius: 2pt !important;
+    color: #0f172a !important;
+  }
+
+  /* Disaster Response Attribution & Validation Footer */
+  .sitrep-print-footer {
+    border-top: 1pt solid #cbd5e1 !important;
+    margin-top: 6pt !important;
+    padding-top: 3pt !important;
+    font-size: 7.2pt !important;
+    color: #64748b !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+    line-height: 1.3 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    display: block !important;
+  }
+
+  .sitrep-footer-status-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    margin-bottom: 1.5pt !important;
+    font-size: 7.5pt !important;
+    font-weight: 600 !important;
+    color: #0b1526 !important;
+  }
+
+  .sitrep-footer-attribution {
+    font-size: 6.9pt !important;
+    color: #64748b !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    line-height: 1.25 !important;
+  }
+}
+
